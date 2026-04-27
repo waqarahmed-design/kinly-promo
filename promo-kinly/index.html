@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: #F8F7FC;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    #root {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+    }
+
+    /* ── Scene base ─────────────────────────────────────────────────── */
+    .scene {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+
+    #scene1 { z-index: 14; background: #F8F7FC; }
+    #scene2 { z-index: 12; background: #F8F7FC; opacity: 0; }
+    #scene3 { z-index: 10; background: #0E0A3C; opacity: 0; }
+    #scene4 { z-index: 8;  background: #0E0A3C; opacity: 0; }
+    #scene5 { z-index: 6;  background: #F8F7FC; opacity: 0; }
+    #scene6 { z-index: 4;  background: #0E0A3C; opacity: 0; }
+    #scene7 { z-index: 2;  background: #0E0A3C; opacity: 0; }
+
+    /* ── Shared: Radial glow orbs ───────────────────────────────────── */
+    .glow {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* ── Shared: feature text block (left side, light scenes) ──────── */
+    .feat-left {
+      position: absolute;
+      top: 0; left: 0;
+      width: 860px;
+      height: 1080px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 160px;
+      gap: 26px;
+    }
+    .feat-left-dark {
+      position: absolute;
+      top: 0; left: 0;
+      width: 880px;
+      height: 1080px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 160px;
+      gap: 26px;
+    }
+    .feat-eyebrow {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: #7B6FFF;
+    }
+    .feat-h {
+      font-family: "Manrope", sans-serif;
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1.08;
+      color: #FFFFFF;
+    }
+    .feat-h-dark {
+      font-family: "Manrope", sans-serif;
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1.08;
+      color: #0C0A1A;
+    }
+    .feat-h .lime { color: #B8FF00; }
+    .feat-h-dark .lime { color: #221080; }
+    .feat-rule {
+      width: 48px; height: 3px;
+      background: #B8FF00;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .feat-sub {
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.55;
+      max-width: 540px;
+    }
+    .feat-sub-dark { color: #4A4568; }
+    .feat-sub-light { color: #6B6589; }
+
+    /* ── SCENE 1: Hook ──────────────────────────────────────────────── */
+    #s1-glow {
+      width: 1100px; height: 1100px;
+      background: radial-gradient(circle, rgba(113,111,255,0.10) 0%, transparent 60%);
+      left: 50%; top: 50%;
+      margin-left: -550px; margin-top: -550px;
+    }
+    .s1-text {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px;
+      height: 1080px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 200px;
+      gap: 20px;
+    }
+    #s1-eyebrow {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #7B6FFF;
+    }
+    #s1-h1 {
+      font-family: "Manrope", sans-serif;
+      font-size: 96px;
+      font-weight: 800;
+      line-height: 1.06;
+      color: #0C0A1A;
+      max-width: 1100px;
+    }
+    .lime-hl {
+      background: #B8FF00;
+      border-radius: 5px;
+      padding: 0 8px;
+      display: inline-block;
+    }
+    #s1-sub {
+      font-size: 26px;
+      font-weight: 400;
+      color: #6B6589;
+      line-height: 1.5;
+      max-width: 680px;
+      margin-top: 4px;
+    }
+    /* Chaos cards */
+    .chaos-card {
+      position: absolute;
+      width: 206px;
+      height: 72px;
+      background: #FFFFFF;
+      border: 1px solid rgba(34,16,128,0.09);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 20px;
+    }
+    .cc-dot {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .cc-lbl { font-size: 14px; font-weight: 600; color: #4A4568; }
+
+    /* ── SCENE 2: Problem ───────────────────────────────────────────── */
+    .s2-text {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px;
+      height: 1080px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 200px;
+      gap: 4px;
+    }
+    .s2-line-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 8px;
+    }
+    .s2-line {
+      font-family: "Manrope", sans-serif;
+      font-size: 72px;
+      font-weight: 700;
+      color: #0C0A1A;
+      line-height: 1.15;
+    }
+    .s2-ul svg {
+      display: block;
+      overflow: visible;
+    }
+    /* Ghost echo on right (decorative) */
+    .s2-ghost {
+      position: absolute;
+      right: 200px;
+      top: 50%;
+      margin-top: -340px;
+      width: 380px;
+      height: 680px;
+      opacity: 0;
+      filter: blur(10px);
+    }
+    .s2-ghost-card {
+      position: absolute;
+      width: 180px; height: 60px;
+      background: rgba(34,16,128,0.08);
+      border-radius: 12px;
+    }
+
+    /* ── SCENE 3: Reveal ────────────────────────────────────────────── */
+    #s3-glow {
+      width: 1200px; height: 1200px;
+      background: radial-gradient(circle, rgba(34,16,128,0.32) 0%, transparent 60%);
+      left: 50%; top: 50%;
+      margin-left: -600px; margin-top: -600px;
+    }
+    .s3-text {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px;
+      height: 1080px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+    #s3-meet {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #9490AB;
+    }
+    #s3-brand {
+      font-family: "Manrope", sans-serif;
+      font-size: 156px;
+      font-weight: 800;
+      line-height: 0.9;
+      color: #FFFFFF;
+    }
+    .s3-underline-svg {
+      display: block;
+      overflow: visible;
+    }
+    /* Floating icon circles */
+    .s3-pill {
+      position: absolute;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: rgba(34,16,128,0.4);
+      border: 1px solid rgba(113,111,255,0.28);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .s3-pill-icon {
+      width: 24px; height: 24px;
+      opacity: 0.6;
+    }
+
+    /* ── SCENE 4: Product ───────────────────────────────────────────── */
+    #s4-glow {
+      width: 1100px; height: 1100px;
+      background: radial-gradient(circle, rgba(34,16,128,0.28) 0%, transparent 62%);
+      right: -200px; top: 50%;
+      margin-top: -550px;
+    }
+    /* Dot pattern overlay */
+    #s4-dots {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      background-image: radial-gradient(circle, rgba(113,111,255,0.12) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    /* Product card wrapper */
+    .s4-card-wrap {
+      position: absolute;
+      right: 180px;
+      top: 220px;
+      width: 280px;
+    }
+    .s4-card-outer {
+      width: 280px;
+      height: 560px;
+      border-radius: 42px;
+      background: linear-gradient(155deg, #2E2B80 0%, #1A1760 100%);
+      padding: 9px;
+      box-shadow:
+        0 50px 90px rgba(14,10,60,0.5),
+        0 16px 36px rgba(0,0,0,0.25);
+    }
+    .s4-card-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 34px;
+      overflow: hidden;
+      background: #F8F7FC;
+    }
+    .s4-card-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    /* ── SCENE 5: Scan ──────────────────────────────────────────────── */
+    #s5-glow {
+      width: 900px; height: 900px;
+      background: radial-gradient(circle, rgba(184,255,0,0.06) 0%, rgba(113,111,255,0.07) 45%, transparent 70%);
+      right: -80px; top: 50%;
+      margin-top: -450px;
+    }
+    /* Document card */
+    #s5-doc {
+      position: absolute;
+      right: 440px;
+      top: 320px;
+      width: 340px;
+      height: 210px;
+      background: #FFFFFF;
+      border: 1px solid rgba(34,16,128,0.10);
+      border-radius: 14px;
+      padding: 28px 28px 20px;
+      overflow: hidden;
+    }
+    #s5-doc-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #9490AB;
+      margin-bottom: 16px;
+    }
+    .s5-doc-line {
+      height: 11px;
+      background: #E2E0ED;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    #s5-scan-bar {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to bottom, #B8FF00, rgba(184,255,0,0.3));
+    }
+    /* Data pills (right of doc) */
+    .s5-data-pills {
+      position: absolute;
+      right: 160px;
+      top: 308px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .s5-pill {
+      background: #FFFFFF;
+      border: 1px solid rgba(34,16,128,0.10);
+      border-radius: 10px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      width: 236px;
+    }
+    .s5-pill-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6B6589;
+    }
+    .s5-pill-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #221080;
+    }
+    .s5-pill-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      border-radius: 100px;
+    }
+    .badge-normal {
+      background: rgba(34,197,94,0.12);
+      color: #16A34A;
+    }
+    .badge-low {
+      background: rgba(234,179,8,0.14);
+      color: #CA8A04;
+    }
+
+    /* ── SCENE 6: AI Chat ───────────────────────────────────────────── */
+    #s6-glow {
+      width: 900px; height: 900px;
+      background: radial-gradient(circle, rgba(34,16,128,0.28) 0%, transparent 62%);
+      right: -60px; top: 50%;
+      margin-top: -450px;
+    }
+    /* Chat bubbles wrapper */
+    .s6-chat {
+      position: absolute;
+      right: 160px;
+      top: 50%;
+      margin-top: -280px;
+      width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chat-user {
+      background: rgba(34,16,128,0.55);
+      border: 1px solid rgba(113,111,255,0.28);
+      border-radius: 18px;
+      border-bottom-right-radius: 4px;
+      padding: 14px 20px;
+      font-size: 17px;
+      font-weight: 400;
+      color: #E2E0ED;
+      align-self: flex-end;
+      max-width: 420px;
+    }
+    .chat-ai {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-left: 4px solid #B8FF00;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      padding: 16px 20px;
+      font-size: 17px;
+      font-weight: 400;
+      color: #E2E0ED;
+      align-self: flex-start;
+      max-width: 480px;
+    }
+    .chat-ai-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #B8FF00;
+      margin-bottom: 8px;
+    }
+    .chat-ai strong { color: #FFFFFF; }
+    /* AI badge */
+    #s6-ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(184,255,0,0.10);
+      border: 1px solid rgba(184,255,0,0.28);
+      border-radius: 100px;
+      padding: 7px 18px 7px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #B8FF00;
+      width: fit-content;
+    }
+    #s6-ai-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #B8FF00;
+      flex-shrink: 0;
+    }
+
+    /* ── SCENE 7: CTA ───────────────────────────────────────────────── */
+    #s7-glow {
+      width: 1400px; height: 1400px;
+      background: radial-gradient(circle, rgba(46,27,168,0.40) 0%, transparent 58%);
+      left: 50%; top: 50%;
+      margin-left: -700px; margin-top: -700px;
+    }
+    .s7-text {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px;
+      height: 1080px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 20px;
+    }
+    #s7-eyebrow {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #9490AB;
+    }
+    #s7-count-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    #s7-count {
+      font-family: "Manrope", sans-serif;
+      font-size: 128px;
+      font-weight: 800;
+      line-height: 0.88;
+      color: #B8FF00;
+    }
+    #s7-count-sub {
+      font-size: 22px;
+      font-weight: 400;
+      color: #6B6589;
+      letter-spacing: 0.01em;
+    }
+    #s7-divider {
+      width: 80px; height: 2px;
+      background: rgba(113,111,255,0.3);
+      border-radius: 2px;
+    }
+    #s7-brand {
+      font-family: "Manrope", sans-serif;
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1;
+      color: #FFFFFF;
+      letter-spacing: -0.01em;
+    }
+    #s7-cta {
+      margin-top: 6px;
+      background: #B8FF00;
+      border-radius: 100px;
+      padding: 20px 72px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #0C0A1A;
+      letter-spacing: 0.01em;
+    }
+    #s7-note {
+      font-size: 14px;
+      font-weight: 400;
+      color: #4A4568;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Final white fade ───────────────────────────────────────────── */
+    #fade-white {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      background: #FFFFFF;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 200;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="root" data-composition-id="main"
+       data-width="1920" data-height="1080"
+       data-start="0" data-duration="30">
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SCENE 1 — HOOK   0 → 4.0s
+         "Your family's medical history lives in a dozen different places."
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="scene1" class="scene">
+      <div id="s1-glow" class="glow"></div>
+
+      <!-- Floating chaos cards (rotations set via GSAP) -->
+      <div class="chaos-card" id="cc1" style="left:185px; top:175px;">
+        <div class="cc-dot" style="background:rgba(37,211,102,0.15);color:rgba(37,211,102,0.85)">WA</div>
+        <span class="cc-lbl">WhatsApp</span>
+      </div>
+      <div class="chaos-card" id="cc2" style="left:1365px; top:158px;">
+        <div class="cc-dot" style="background:rgba(113,111,255,0.15);color:rgba(113,111,255,0.85)">PH</div>
+        <span class="cc-lbl">Gallery</span>
+      </div>
+      <div class="chaos-card" id="cc3" style="left:1510px; top:495px;">
+        <div class="cc-dot" style="background:rgba(255,150,50,0.16);color:rgba(255,170,60,0.85)">EM</div>
+        <span class="cc-lbl">Email</span>
+      </div>
+      <div class="chaos-card" id="cc4" style="left:1285px; top:825px;">
+        <div class="cc-dot" style="background:rgba(196,194,240,0.15);color:rgba(74,69,104,0.85)">PF</div>
+        <span class="cc-lbl">Paper Files</span>
+      </div>
+      <div class="chaos-card" id="cc5" style="left:275px; top:840px;">
+        <div class="cc-dot" style="background:rgba(34,16,128,0.14);color:rgba(113,111,255,0.85)">CL</div>
+        <span class="cc-lbl">Clinic App</span>
+      </div>
+      <div class="chaos-card" id="cc6" style="left:95px; top:535px;">
+        <div class="cc-dot" style="background:rgba(113,111,255,0.10);color:rgba(74,69,104,0.8)">MEM</div>
+        <span class="cc-lbl">Memory</span>
+      </div>
+
+      <div class="s1-text">
+        <div id="s1-eyebrow">Your family's health companion</div>
+        <div id="s1-h1">
+          Medical history lives<br>
+          in a <span id="s1-dozen-hl" class="lime-hl">dozen</span> different places.
+        </div>
+        <div id="s1-sub">Store, organize, and understand every medical record for your entire family.</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SCENE 2 — PROBLEM   4.0 → 7.5s
+         "WhatsApp threads. Old photos. Prescriptions no one can find."
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="scene2" class="scene">
+      <!-- Ghost echo right side -->
+      <div class="s2-ghost" id="s2-ghost">
+        <div class="s2-ghost-card" style="left:0; top:0;"></div>
+        <div class="s2-ghost-card" style="left:160px; top:130px;"></div>
+        <div class="s2-ghost-card" style="left:30px; top:260px;"></div>
+        <div class="s2-ghost-card" style="left:170px; top:390px;"></div>
+        <div class="s2-ghost-card" style="left:10px; top:520px;"></div>
+        <div class="s2-ghost-card" style="left:150px; top:620px;"></div>
+      </div>
+
+      <div class="s2-text">
+        <!-- Line 1 -->
+        <div id="s2-wrap1" class="s2-line-wrap">
+          <div class="s2-line" id="s2-l1">WhatsApp threads.</div>
+          <div id="s2-ul1" class="s2-ul">
+            <svg width="560" height="10" viewBox="0 0 560 10">
+              <path id="ul-path-1" d="M 4 6 L 556 6"
+                stroke="#B8FF00" stroke-width="4" fill="none"
+                stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <!-- Line 2 -->
+        <div id="s2-wrap2" class="s2-line-wrap">
+          <div class="s2-line" id="s2-l2">Old photos.</div>
+          <div id="s2-ul2" class="s2-ul">
+            <svg width="360" height="10" viewBox="0 0 360 10">
+              <path id="ul-path-2" d="M 4 6 L 356 6"
+                stroke="#B8FF00" stroke-width="4" fill="none"
+                stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <!-- Line 3 -->
+        <div id="s2-wrap3" class="s2-line-wrap">
+          <div class="s2-line" id="s2-l3">Prescriptions no one can find.</div>
+          <div id="s2-ul3" class="s2-ul">
+            <svg width="900" height="10" viewBox="0 0 900 10">
+              <path id="ul-path-3" d="M 4 6 L 896 6"
+                stroke="#B8FF00" stroke-width="4" fill="none"
+                stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SCENE 3 — REVEAL   7.5 → 10.5s
+         "Meet Kinly."
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="scene3" class="scene">
+      <div id="s3-glow" class="glow"></div>
+
+      <!-- Corner icon pills (decorative) -->
+      <div class="s3-pill" id="sp1" style="left:220px; top:190px;">
+        <img class="s3-pill-icon" src="capture/assets/svgs/icon-1.svg" onerror="this.style.display='none'" />
+      </div>
+      <div class="s3-pill" id="sp2" style="right:240px; top:210px;">
+        <img class="s3-pill-icon" src="capture/assets/svgs/icon-3.svg" onerror="this.style.display='none'" />
+      </div>
+      <div class="s3-pill" id="sp3" style="left:280px; bottom:200px;">
+        <img class="s3-pill-icon" src="capture/assets/svgs/icon-5.svg" onerror="this.style.display='none'" />
+      </div>
+      <div class="s3-pill" id="sp4" style="right:260px; bottom:220px;">
+        <img class="s3-pill-icon" src="capture/assets/svgs/icon-7.svg" onerror="this.style.display='none'" />
+      </div>
+
+      <div class="s3-text">
+        <div id="s3-meet">Meet</div>
+        <div id="s3-brand">kinly</div>
+        <!-- Lime underline SVG -->
+        <svg id="s3-ul-svg" class="s3-underline-svg" width="480" height="16" viewBox="0 0 480 16">
+          <path id="s3-ul-path" d="M 4 10 Q 120 4 240 10 Q 360 16 476 10"
+            stroke="#B8FF00" stroke-width="6" fill="none"
+            stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SCENE 4 — PRODUCT   10.5 → 16.0s
+         "One app for your entire family's health — and an AI that actually knows them."
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="scene4" class="scene">
+      <div id="s4-glow" class="glow"></div>
+      <div id="s4-dots"></div>
+
+      <div class="feat-left-dark" id="s4-text">
+        <div class="feat-eyebrow" id="s4-ey">Your family's health</div>
+        <div class="feat-h" id="s4-h">
+          One app.<br>Every member.<br><span class="lime">Truly knows them.</span>
+        </div>
+        <div class="feat-rule" id="s4-rule"></div>
+        <div class="feat-sub feat-sub-light" id="s4-sub">
+          Permanent health profiles for every family member — conditions, medications, records. One upload and AI does the rest.
+        </div>
+      </div>
+
+      <div class="s4-card-wrap" id="s4-phone">
+        <div class="s4-card-outer">
+          <div class="s4-card-inner">
+            <img src="capture/assets/image.jpg" alt="Kinly app" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SCENE 5 — SCAN   16.0 → 20.0s
+         "Upload any report. Kinly reads it instantly."
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="scene5" class="scene">
+      <div id="s5-glow" class="glow"></div>
+
+      <div class="feat-left" id="s5-text">
+        <div class="feat-eyebrow" style="color:#221080" id="s5-ey">AI Document Scan</div>
+        <div class="feat-h-dark" id="s5-h">
+          Upload any report.<br><span class="lime">Kinly reads it</span><br>instantly.
+        </div>
+        <div class="feat-rule" style="background:#221080" id="s5-rule"></div>
+        <div class="feat-sub feat-sub-dark" id="s5-sub">
+          Snap a photo. Kinly's AI reads the report, extracts every value, and organizes it by person — no manual entry.
+        </div>
+      </div>
+
+      <!-- Document card -->
+      <div id="s5-doc">
+        <div id="s5-doc-label">Lab Report</div>
+        <div class="s5-doc-line" style="width:82%"></div>
+        <div class="s5-doc-line" style="width:64%"></div>
+        <div class="s5-doc-line" style="width:73%"></div>
+        <div id="s5-scan-bar"></div>
+      </div>
+
+      <!-- Data pills column -->
+      <div class="s5-data-pills">
+        <div class="s5-pill" id="s5-p1">
+          <span class="s5-pill-label">HbA1c</span>
+          <span class="s5-pill-value">7.2%</span>
+          <span class="s5-pill-badge badge-normal">Normal</span>
+        </div>
+        <div class="s5-pill" id="s5-p2">
+          <span class="s5-pill-label">Glucose</span>
+          <span class="s5-pill-value">94 mg/dL</span>
+          <span class="s5-pill-badge badge-normal">Normal</span>
+        </div>
+        <div class="s5-pill" id="s5-p3">
+          <span class="s5-pill-label">Sp. Gravity</span>
+          <span class="s5-pill-value">1.004</span>
+          <span class="s5-pill-badge badge-low">Low</span>
+        </div>
+        <div class="s5-pill" id="s5-p4">
+          <span class="s5-pill-label">Protein</span>
+          <span class="s5-pill-value">Negative</span>
+          <span class="s5-pill-badge badge-normal">Normal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SCENE 6 — AI CHAT   20.0 → 24.0s
+         "Ask anything. Get answers grounded in their real records."
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="scene6" class="scene">
+      <div id="s6-glow" class="glow"></div>
+
+      <div class="feat-left-dark" id="s6-text">
+        <div id="s6-ai-badge">
+          <div id="s6-ai-dot"></div>
+          Powered by Claude AI
+        </div>
+        <div class="feat-h" id="s6-h">
+          Ask anything.<br><span class="lime">Real answers.</span>
+        </div>
+        <div class="feat-rule" id="s6-rule"></div>
+        <div class="feat-sub feat-sub-light" id="s6-sub">
+          Grounded in your family's actual records — not generic advice.
+        </div>
+      </div>
+
+      <div class="s6-chat">
+        <div class="chat-user" id="s6-q1">"Is my mother's cholesterol improving?"</div>
+        <div class="chat-user" id="s6-q2">"When was Ahmed's last blood test?"</div>
+        <div class="chat-user" id="s6-q3">"What medications is my father on?"</div>
+        <div class="chat-ai" id="s6-ans">
+          <div class="chat-ai-lbl">Kinly AI</div>
+          Ahmed's last CBC was <strong>Jan 15</strong> — HbA1c at <strong>7.2%</strong>, slightly elevated. Previous reading was 7.8% in October.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SCENE 7 — CTA   24.0 → 30.0s
+         "143 of 200 spots claimed. Kinly. Secure yours today."
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="scene7" class="scene">
+      <div id="s7-glow" class="glow"></div>
+
+      <div class="s7-text">
+        <div id="s7-eyebrow">Early Access</div>
+        <div id="s7-count-wrap">
+          <div id="s7-count">0</div>
+          <div id="s7-count-sub">of 200 spots claimed</div>
+        </div>
+        <div id="s7-divider"></div>
+        <div id="s7-brand">kinly</div>
+        <div id="s7-cta">Secure Your Spot</div>
+        <div id="s7-note">Free early access · No credit card required</div>
+      </div>
+    </div>
+
+    <!-- Final white fade -->
+    <div id="fade-white"></div>
+
+  </div><!-- #root -->
+
+  <script>
+    // ── Seeded PRNG ──────────────────────────────────────────────────
+    function mulberry32(seed) {
+      return function() {
+        seed += 0x6D2B79F5;
+        var t = seed;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    var rand = mulberry32(0xA3F2C891);
+
+    // ── Set up SVG underlines (strokeDasharray via attr) ─────────────
+    ["#ul-path-1","#ul-path-2","#ul-path-3","#s3-ul-path"].forEach(function(sel) {
+      var el = document.querySelector(sel);
+      if (!el) return;
+      var len = el.getTotalLength();
+      el.setAttribute("stroke-dasharray", len);
+      el.setAttribute("stroke-dashoffset", len);
+    });
+
+    // ── Counter proxy ────────────────────────────────────────────────
+    var counterProxy = { val: 0 };
+    var counterEl = document.getElementById("s7-count");
+
+    // ── Timeline ─────────────────────────────────────────────────────
+    window.__timelines = window.__timelines || {};
+    var tl = gsap.timeline({ paused: true });
+
+    // ── Set chaos card rotations (GSAP, not CSS transform) ───────────
+    gsap.set("#cc1", { rotation: -6 });
+    gsap.set("#cc2", { rotation:  5 });
+    gsap.set("#cc3", { rotation: -4 });
+    gsap.set("#cc4", { rotation:  7 });
+    gsap.set("#cc5", { rotation: -5 });
+    gsap.set("#cc6", { rotation:  3 });
+
+    // ════════════════════════════════════════════════════════════════
+    // SCENE 1 — HOOK   0 → 4.0s
+    // ════════════════════════════════════════════════════════════════
+
+    // BG glow breathes in
+    tl.from("#s1-glow",       { scale: 0.55, opacity: 0, duration: 2.0, ease: "power1.out" }, 0);
+
+    // Chaos cards enter from screen center outward
+    // cc1: left:185,top:175 → center(288,211). Screen center(960,540). From offset: x=672, y=329
+    tl.from("#cc1", { x:  672, y:  329, opacity: 0, duration: 0.50, ease: "power2.out" }, 0.22);
+    // cc2: left:1365,top:158 → center(1468,194). offset: x=-508, y=346
+    tl.from("#cc2", { x: -508, y:  346, opacity: 0, duration: 0.50, ease: "power2.out" }, 0.30);
+    // cc3: left:1510,top:495 → center(1613,531). offset: x=-653, y=9
+    tl.from("#cc3", { x: -653, y:    9, opacity: 0, duration: 0.50, ease: "power2.out" }, 0.38);
+    // cc4: left:1285,top:825 → center(1388,861). offset: x=-428, y=-321
+    tl.from("#cc4", { x: -428, y: -321, opacity: 0, duration: 0.50, ease: "power2.out" }, 0.28);
+    // cc5: left:275,top:840 → center(378,876). offset: x=582, y=-336
+    tl.from("#cc5", { x:  582, y: -336, opacity: 0, duration: 0.50, ease: "power2.out" }, 0.36);
+    // cc6: left:95,top:535 → center(198,571). offset: x=762, y=-31
+    tl.from("#cc6", { x:  762, y:  -31, opacity: 0, duration: 0.50, ease: "power2.out" }, 0.24);
+
+    // Slow drift per card (one direction, no repeat, seeded offsets)
+    var driftX = [(rand()-0.5)*28, (rand()-0.5)*28, (rand()-0.5)*28,
+                  (rand()-0.5)*28, (rand()-0.5)*28, (rand()-0.5)*28];
+    var driftY = [(rand()-0.5)*20, (rand()-0.5)*20, (rand()-0.5)*20,
+                  (rand()-0.5)*20, (rand()-0.5)*20, (rand()-0.5)*20];
+    ["#cc1","#cc2","#cc3","#cc4","#cc5","#cc6"].forEach(function(id, i) {
+      tl.to(id, { x: "+=" + driftX[i].toFixed(1),
+                  y: "+=" + driftY[i].toFixed(1),
+                  duration: 3.8, ease: "sine.inOut" }, 0.20);
+    });
+
+    // Eyebrow + headline
+    tl.from("#s1-eyebrow", { x: -20, opacity: 0, duration: 0.26, ease: "expo.out"  }, 0.30);
+    tl.from("#s1-h1",      { y: 44,  opacity: 0, duration: 0.40, ease: "power3.out"}, 0.44);
+
+    // Lime highlight scaleX reveal on "dozen"
+    tl.from("#s1-dozen-hl", { scaleX: 0, transformOrigin: "left center",
+                               duration: 0.26, ease: "expo.out" }, 0.60);
+
+    tl.from("#s1-sub",     { y: 24, opacity: 0, duration: 0.32, ease: "power2.out" }, 0.68);
+
+    // Glow ambient scale pulse (finite: 1 cycle in ~3s remaining)
+    tl.to("#s1-glow", { scale: 1.06, overwrite: "auto", duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0.8);
+
+    // ── Transition 1 → 2: velocity-matched upward at 3.68s ───────────
+    var T1 = 3.68;
+    tl.to("#scene1", { y: -80, filter: "blur(16px)", opacity: 0,
+                       duration: 0.30, ease: "power2.in" }, T1);
+    tl.set("#scene1", { visibility: "hidden" }, T1 + 0.30);
+    tl.fromTo("#scene2", { y: 80, opacity: 0 },
+              { y: 0, opacity: 1, overwrite: "auto", duration: 0.35, ease: "power2.out" }, T1 + 0.06);
+
+    // ════════════════════════════════════════════════════════════════
+    // SCENE 2 — PROBLEM   ~4.0 → 7.5s
+    // ════════════════════════════════════════════════════════════════
+    var S2 = T1 + 0.08;  // ~3.76 — entrance begins just as scene arrives
+
+    // Ghost echo
+    tl.from("#s2-ghost", { opacity: 0, duration: 0.5, ease: "power1.out" }, S2 + 0.1);
+
+    // Three problem lines slam in + underline draws
+    tl.from("#s2-l1", { x: -60, opacity: 0, duration: 0.22, ease: "power3.out" }, S2 + 0.12);
+    tl.to("#ul-path-1", { attr: { "stroke-dashoffset": 0 }, duration: 0.28, ease: "power2.out" }, S2 + 0.26);
+
+    tl.from("#s2-l2", { x: -60, opacity: 0, duration: 0.22, ease: "power3.out" }, S2 + 0.42);
+    tl.to("#ul-path-2", { attr: { "stroke-dashoffset": 0 }, duration: 0.24, ease: "power2.out" }, S2 + 0.56);
+
+    tl.from("#s2-l3", { x: -60, opacity: 0, duration: 0.22, ease: "power3.out" }, S2 + 0.70);
+    tl.to("#ul-path-3", { attr: { "stroke-dashoffset": 0 }, duration: 0.30, ease: "power2.out" }, S2 + 0.84);
+
+    // ── Transition 2 → 3: hard cut at 7.44s ──────────────────────────
+    var T2 = 7.44;
+    tl.to("#scene2", { opacity: 0, duration: 0.10, ease: "none" }, T2);
+    tl.set("#scene2", { visibility: "hidden" }, T2 + 0.10);
+    tl.to("#scene3", { opacity: 1, overwrite: "auto", duration: 0.10, ease: "none" }, T2 + 0.04);
+
+    // ════════════════════════════════════════════════════════════════
+    // SCENE 3 — REVEAL   ~7.5 → 10.5s
+    // ════════════════════════════════════════════════════════════════
+    var S3 = T2 + 0.12;  // ~7.56
+
+    tl.from("#s3-glow", { scale: 0.4, opacity: 0, duration: 1.2, ease: "power2.out" }, S3);
+
+    // Corner pills drift in
+    tl.from(["#sp1","#sp2","#sp3","#sp4"], {
+      scale: 0, opacity: 0, duration: 0.30,
+      ease: "back.out(1.6)",
+      stagger: { each: 0.08 }
+    }, S3 + 0.14);
+
+    // Floating drift for pills (finite: 1 cycle)
+    tl.to(["#sp1","#sp2","#sp3","#sp4"], {
+      y: -12, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: 1,
+      stagger: { each: 0.2 }
+    }, S3 + 0.5);
+
+    // "Meet" fades up
+    tl.from("#s3-meet", { y: -14, opacity: 0, duration: 0.28, ease: "expo.out" }, S3 + 0.18);
+
+    // "kinly" stamps in
+    tl.from("#s3-brand", { scale: 0.90, opacity: 0, duration: 0.42, ease: "power4.out" }, S3 + 0.34);
+
+    // Lime underline draws
+    tl.to("#s3-ul-path", { attr: { "stroke-dashoffset": 0 }, duration: 0.55, ease: "power2.out" }, S3 + 0.62);
+
+    // Glow bloom
+    tl.to("#s3-glow", { scale: 1.08, overwrite: "auto", duration: 1.2, ease: "sine.inOut", yoyo: true, repeat: 1 }, S3 + 0.6);
+
+    // ── Transition 3 → 4: zoom through at 10.2s ──────────────────────
+    var T3 = 10.2;
+    tl.to("#scene3", { scale: 1.08, filter: "blur(20px)", opacity: 0,
+                       duration: 0.25, ease: "power3.in" }, T3);
+    tl.set("#scene3", { visibility: "hidden" }, T3 + 0.25);
+    tl.fromTo("#scene4",
+      { scale: 0.92, filter: "blur(20px)", opacity: 0 },
+      { scale: 1, filter: "blur(0px)", opacity: 1,
+        overwrite: "auto", duration: 0.40, ease: "expo.out" }, T3 + 0.06);
+
+    // ════════════════════════════════════════════════════════════════
+    // SCENE 4 — PRODUCT   ~10.5 → 16.0s
+    // ════════════════════════════════════════════════════════════════
+    var S4 = T3 + 0.08;  // ~10.28
+
+    tl.from("#s4-glow",  { scale: 0.5, opacity: 0, duration: 1.5, ease: "power2.out" }, S4);
+    tl.from("#s4-dots",  { opacity: 0, duration: 0.8, ease: "power1.out" }, S4 + 0.2);
+
+    // Phone card enters from right
+    tl.from("#s4-phone", { x: 120, opacity: 0, overwrite: "auto", duration: 0.44, ease: "power3.out" }, S4 + 0.10);
+    // Phone floats (2.5s yoyo, 2 repeats in ~5.5s available)
+    tl.to("#s4-phone", { y: -12, duration: 2.5, ease: "sine.inOut", yoyo: true, repeat: 2 }, S4 + 0.6);
+
+    // Ken Burns on product image
+    tl.to("[data-composition-id='main'] .s4-card-inner img", { scale: 1.04, duration: 5.5, ease: "none" }, S4);
+
+    // Text block
+    tl.from("#s4-ey",   { x: -18, opacity: 0, duration: 0.24, ease: "expo.out"  }, S4 + 0.20);
+    tl.from("#s4-h",    { y: 36,  opacity: 0, duration: 0.38, ease: "power3.out"}, S4 + 0.34);
+    tl.from("#s4-rule", { scaleX: 0, transformOrigin: "left center",
+                          opacity: 0, duration: 0.30, ease: "expo.out" }, S4 + 0.56);
+    tl.from("#s4-sub",  { y: 20,  opacity: 0, duration: 0.28, ease: "power2.out"}, S4 + 0.68);
+
+    // ── Transition 4 → 5: velocity-matched upward at 15.7s ───────────
+    var T4 = 15.70;
+    tl.to("#scene4", { y: -80, filter: "blur(16px)", opacity: 0,
+                       overwrite: "auto", duration: 0.28, ease: "power2.in" }, T4);
+    tl.set("#scene4", { visibility: "hidden" }, T4 + 0.28);
+    tl.fromTo("#scene5", { y: 80, opacity: 0 },
+              { y: 0, opacity: 1, overwrite: "auto", duration: 0.35, ease: "power2.out" }, T4 + 0.06);
+
+    // ════════════════════════════════════════════════════════════════
+    // SCENE 5 — SCAN   ~16.0 → 20.0s
+    // ════════════════════════════════════════════════════════════════
+    var S5 = T4 + 0.08;  // ~15.78
+
+    tl.from("#s5-glow", { scale: 0.55, opacity: 0, duration: 1.2, ease: "power2.out" }, S5);
+
+    // Text block
+    tl.from("#s5-ey",   { x: -18, opacity: 0, duration: 0.24, ease: "expo.out"  }, S5 + 0.16);
+    tl.from("#s5-h",    { y: 36,  opacity: 0, duration: 0.36, ease: "power3.out"}, S5 + 0.28);
+    tl.from("#s5-rule", { scaleX: 0, transformOrigin: "left center",
+                          opacity: 0, duration: 0.28, ease: "expo.out" }, S5 + 0.50);
+    tl.from("#s5-sub",  { y: 20,  opacity: 0, duration: 0.28, ease: "power2.out"}, S5 + 0.62);
+
+    // Document card drops in
+    tl.from("#s5-doc", { y: -60, opacity: 0, duration: 0.40, ease: "power3.out" }, S5 + 0.30);
+
+    // Scan bar sweep (hidden → top → sweep to bottom → hidden)
+    tl.set("#s5-scan-bar", { y: 0, opacity: 1 }, S5 + 0.88);
+    tl.to("#s5-scan-bar", { y: 210, overwrite: "auto", duration: 0.48, ease: "power1.inOut" }, S5 + 0.90);
+    tl.to("#s5-scan-bar", { opacity: 0, overwrite: "auto", duration: 0.08, ease: "none" }, S5 + 1.36);
+
+    // Data pills cascade in after scan
+    tl.from(["#s5-p1","#s5-p2","#s5-p3","#s5-p4"], {
+      x: 28, opacity: 0, duration: 0.26,
+      ease: "back.out(1.4)",
+      stagger: { each: 0.10 }
+    }, S5 + 1.44);
+
+    // Pills float gently (1 cycle)
+    tl.to(["#s5-p1","#s5-p2","#s5-p3","#s5-p4"], {
+      y: -6, duration: 1.4, ease: "sine.inOut", yoyo: true, repeat: 1,
+      stagger: { each: 0.15 }
+    }, S5 + 1.8);
+
+    // ── Transition 5 → 6: blur through at 19.68s ─────────────────────
+    var T5 = 19.68;
+    tl.to("#scene5", { filter: "blur(18px)", opacity: 0,
+                       overwrite: "auto", duration: 0.28, ease: "power2.in" }, T5);
+    tl.set("#scene5", { visibility: "hidden" }, T5 + 0.28);
+    tl.fromTo("#scene6",
+      { filter: "blur(18px)", opacity: 0 },
+      { filter: "blur(0px)", opacity: 1,
+        overwrite: "auto", duration: 0.30, ease: "power2.out" }, T5 + 0.06);
+
+    // ════════════════════════════════════════════════════════════════
+    // SCENE 6 — AI CHAT   ~20.0 → 24.0s
+    // ════════════════════════════════════════════════════════════════
+    var S6 = T5 + 0.08;  // ~19.76
+
+    tl.from("#s6-glow", { scale: 0.55, opacity: 0, duration: 1.2, ease: "power2.out" }, S6);
+
+    // AI badge
+    tl.from("#s6-ai-badge", { x: -18, opacity: 0, duration: 0.26, ease: "expo.out" }, S6 + 0.16);
+
+    // AI dot pulses (4 cycles in ~3s)
+    tl.to("#s6-ai-dot", {
+      scale: 1.6, opacity: 0.5, duration: 0.45,
+      ease: "sine.inOut", yoyo: true, repeat: 5
+    }, S6 + 0.5);
+
+    // Text
+    tl.from("#s6-h",    { y: 34, opacity: 0, duration: 0.36, ease: "power3.out" }, S6 + 0.28);
+    tl.from("#s6-rule", { scaleX: 0, transformOrigin: "left center",
+                          opacity: 0, duration: 0.28, ease: "expo.out" }, S6 + 0.50);
+    tl.from("#s6-sub",  { y: 18, opacity: 0, duration: 0.26, ease: "power2.out" }, S6 + 0.62);
+
+    // Chat bubbles cascade
+    tl.from("#s6-q1", { x: 40, opacity: 0, duration: 0.32, ease: "back.out(1.2)" }, S6 + 0.44);
+    tl.from("#s6-q2", { x: 40, opacity: 0, duration: 0.32, ease: "back.out(1.2)" }, S6 + 0.78);
+    tl.from("#s6-q3", { x: 40, opacity: 0, duration: 0.32, ease: "back.out(1.2)" }, S6 + 1.10);
+
+    // AI response fades up
+    tl.from("#s6-ans", { y: 20, opacity: 0, duration: 0.36, ease: "power2.out" }, S6 + 1.60);
+
+    // ── Transition 6 → 7: cinematic zoom at 23.65s ───────────────────
+    var T6 = 23.65;
+    tl.to("#scene6", { scale: 1.06, filter: "blur(16px)", opacity: 0,
+                       overwrite: "auto", duration: 0.30, ease: "power2.in" }, T6);
+    tl.set("#scene6", { visibility: "hidden" }, T6 + 0.30);
+    tl.fromTo("#scene7",
+      { scale: 0.94, filter: "blur(16px)", opacity: 0 },
+      { scale: 1, filter: "blur(0px)", opacity: 1,
+        overwrite: "auto", duration: 0.45, ease: "expo.out" }, T6 + 0.06);
+
+    // ════════════════════════════════════════════════════════════════
+    // SCENE 7 — CTA   ~24.0 → 30.0s
+    // ════════════════════════════════════════════════════════════════
+    var S7 = T6 + 0.10;  // ~23.75
+
+    tl.from("#s7-glow",    { scale: 0.45, opacity: 0, duration: 1.4, ease: "power2.out" }, S7);
+    tl.from("#s7-eyebrow", { y: -14, opacity: 0, duration: 0.26, ease: "expo.out" }, S7 + 0.12);
+
+    // Counter animates 0 → 143
+    tl.to(counterProxy, {
+      val: 143, duration: 1.2, ease: "power1.out",
+      onUpdate: function() { counterEl.textContent = Math.round(counterProxy.val); }
+    }, S7 + 0.26);
+
+    tl.from("#s7-count-sub", { y: 14, opacity: 0, duration: 0.28, ease: "power2.out" }, S7 + 0.48);
+    tl.from("#s7-divider",   { scaleX: 0, transformOrigin: "center center",
+                               opacity: 0, duration: 0.30, ease: "expo.out" }, S7 + 0.80);
+    tl.from("#s7-brand",     { y: 20, opacity: 0, duration: 0.34, ease: "power3.out" }, S7 + 0.96);
+    tl.from("#s7-cta",       { y: 16, scale: 0.90, opacity: 0,
+                               overwrite: "auto", duration: 0.38, ease: "back.out(1.8)" }, S7 + 1.16);
+    tl.from("#s7-note",      { opacity: 0, duration: 0.30, ease: "power1.out" }, S7 + 1.50);
+
+    // CTA bounce shimmer (1 cycle after entrance)
+    tl.to("#s7-cta", { scale: 1.04, overwrite: "auto", duration: 0.6,
+                       ease: "sine.inOut", yoyo: true, repeat: 1 }, S7 + 1.80);
+
+    // Glow ambient pulse (finite, 2 cycles in ~6s)
+    tl.to("#s7-glow", { scale: 1.05, overwrite: "auto", duration: 1.4, ease: "sine.inOut", yoyo: true, repeat: 2 }, S7 + 0.8);
+
+    // ── Final fade to white 28.5 → 30.0s ─────────────────────────────
+    tl.to("#fade-white", { opacity: 1, duration: 1.5, ease: "power2.in" }, 28.5);
+    tl.set("#scene7", { visibility: "hidden" }, 30.0);
+
+    window.__timelines["main"] = tl;
+  </script>
+</body>
+</html>
